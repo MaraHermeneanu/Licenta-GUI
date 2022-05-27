@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>782</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1000</width>
+    <height>500</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1000</width>
+    <height>800</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QWidget" name="widgetMainScreen" native="true">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1000</width>
+     <height>800</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>800</width>
+     <height>800</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>1000</width>
+     <height>800</height>
+    </size>
+   </property>
+   <property name="baseSize">
+    <size>
+     <width>500</width>
+     <height>500</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#widgetMainScreen{
+background-image: url(&quot;C:/Users/marah/Desktop/Licenta GUI/bg.jpg&quot;);
+background-repeat: no-repeat; 
+background-position: center; 
+}</string>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>590</y>
+      <width>1001</width>
+      <height>151</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <property name="leftMargin">
+      <number>150</number>
+     </property>
+     <property name="rightMargin">
+      <number>150</number>
+     </property>
+     <property name="verticalSpacing">
+      <number>0</number>
+     </property>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="oGenerateBtn">
+       <property name="maximumSize">
+        <size>
+         <width>500</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Century Gothic</family>
+         <pointsize>16</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">#oGenerateBtn {
+border-radius:20px;
+background-color:rgb(214, 211, 192);
+border: 2px solid rgb(77, 59, 45);
+}
+#oGenerateBtn:hover{
+	background-color:rgba(0, 0, 0, 0.3);
+	color: rgb(255, 255, 255);
+	border: 2px solid rgb(0, 0, 0);
+}
+</string>
+       </property>
+       <property name="text">
+        <string>Generate PLY</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="oBackBtn">
+       <property name="maximumSize">
+        <size>
+         <width>500</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Century Gothic</family>
+         <pointsize>16</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">#oBackBtn {
+border-radius:20px;
+background-color:rgba(255, 255, 255, 0.5);
+border: 2px solid rgb(77, 59, 45);
+}
+#oBackBtn:hover{
+	background-color:rgba(0, 0, 0, 0.3);
+	color: rgb(255, 255, 255);
+	border: 2px solid rgb(0, 0, 0);
+}
+</string>
+       </property>
+       <property name="text">
+        <string>Back </string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>440</y>
+      <width>481</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="1" column="0">
+      <widget class="QSpinBox" name="oBlockSize">
+       <property name="font">
+        <font>
+         <family>Century Gothic</family>
+         <pointsize>16</pointsize>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="value">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="oSearchBlockSize">
+       <property name="font">
+        <font>
+         <family>Century Gothic</family>
+         <pointsize>16</pointsize>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="value">
+        <number>56</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_10">
+       <property name="font">
+        <font>
+         <family>Century Gothic</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>Maximum disparity minus minimum disparity. The value is always greater than zero. In the current implementation, this parameter must be divisible by 16.</string>
+       </property>
+       <property name="text">
+        <string>searchBlockSize</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_9">
+       <property name="font">
+        <font>
+         <family>Century Gothic</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>Minimum possible disparity value. Normally, it is zero but sometimes rectification algorithms can shift images, so this parameter n/eeds to be adjusted accordingly.</string>
+       </property>
+       <property name="text">
+        <string>blockSize</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1001</width>
+      <height>311</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="sLeftImage">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="sRightImage">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="oRestoreBtn">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>400</y>
+      <width>271</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>500</width>
+      <height>50</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <family>Century Gothic</family>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <italic>true</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#oRestoreBtn {
+text-align:right;
+border-radius:20px;
+padding-right:2px
+}
+#oRestoreBtn:hover{
+	border: 2px solid rgb(251, 240, 234);
+	text-align:right;
+	padding-right:2px
+}
+</string>
+    </property>
+    <property name="text">
+     <string>Restore default values</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>20</width>
+      <height>20</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="oRightImgBtn">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>315</y>
+      <width>231</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Century Gothic</family>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#oRightImgBtn {
+border-radius:10px;
+background-color:rgba(255, 255, 255, 0.5);
+border: 2px solid rgb(77, 59, 45);
+}
+#oRightImgBtn:hover{
+	background-color:rgba(0, 0, 0, 0.3);
+	color: rgb(255, 255, 255);
+	border: 2px solid rgb(0, 0, 0);
+}</string>
+    </property>
+    <property name="text">
+     <string>Upload right image</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="oLeftImgBtn">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>315</y>
+      <width>201</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Century Gothic</family>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#oLeftImgBtn {
+border-radius:10px;
+background-color:rgba(255, 255, 255, 0.5);
+border: 2px solid rgb(77, 59, 45);
+}
+#oLeftImgBtn:hover{
+	background-color:rgba(0, 0, 0, 0.3);
+	color: rgb(255, 255, 255);
+	border: 2px solid rgb(0, 0, 0);
+}</string>
+    </property>
+    <property name="text">
+     <string>Upload left image</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
