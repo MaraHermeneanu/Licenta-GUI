@@ -54,7 +54,7 @@
    </property>
    <property name="styleSheet">
     <string notr="true">#widgetMainScreen{
-background-image: url(&quot;C:/Users/marah/Desktop/Licenta GUI/bg.jpg&quot;);
+background-image: url(&quot;C:/Users/marah/Desktop/Licenta-GUI/bg.jpg&quot;);
 background-repeat: no-repeat; 
 background-position: center; 
 }</string>

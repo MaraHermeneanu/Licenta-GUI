@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QDialog, QApplication, QWidget, QFileDialog, QMessageBox 
 from PyQt5 import QtGui
 from PyQt5.QtGui import QPixmap, QIcon
-from cv2 import stereoCalibrate
+from cv2 import imshow, stereoCalibrate
 from PIL import Image
 import numpy as np
 from tqdm import *
@@ -13,6 +13,8 @@ import cv2
 import os
 from os import path
 import subprocess
+import PIL.ExifTags
+import PIL.Image
 
 terminationCriteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -86,16 +88,17 @@ def loadStereoCoef(sPath):
 
 ############################################################################
 ### Methods for writing/opening PLY files with MeshLab ###
-def writePLY(sFileName, aVertices, aColors):
-    """ Write ply file"""
+def openMeshLab(sPath):
+    """ Open Mesh Lab with given file path"""
+    subprocess.Popen(['C:\Program Files\VCG\MeshLab\meshlab.exe', sPath])
 
-    aVertices = aVertices.reshape(-1, 3)
-    aColors = aColors.reshape(-1, 3)
-    aVertices = np.hstack([aVertices, aColors])
 
-    aVertices = aVertices[~np.isnan(aVertices).any(axis=1)]
-    aVertices = aVertices[~np.isinf(aVertices).any(axis=1)]
-    sPlyHeader = '''ply
+
+def writePLY(sPath, aVertices, aColors):
+    aColors = aColors.reshape(-1,3)
+    aVertices = np.hstack([aVertices.reshape(-1,3), aColors])
+
+    sPLYHeader = '''ply
         format ascii 1.0
         element vertex %(nVertices)d
         property float x
@@ -106,15 +109,14 @@ def writePLY(sFileName, aVertices, aColors):
         property uchar blue
         end_header
         '''
-
-    with open(sFileName, 'w') as oFile:
-        oFile.write(sPlyHeader % dict(nVertices=len(aVertices)))
+    with open(sPath, 'w') as oFile:
+        oFile.write(sPLYHeader %dict(nVertices=len(aVertices)))
         np.savetxt(oFile, aVertices, '%f %f %f %d %d %d')
-        openMeshLab(sFileName)
-
-def openMeshLab(sPath):
-    """ Open Mesh Lab with given file path"""
-    subprocess.call(['C:\Program Files\VCG\MeshLab\meshlab.exe', sPath])
+        while True:
+            if os.access(sPath, os.R_OK):
+                openMeshLab(sPath)
+                break
+ 
 ############################################################################
 
 def navToWelcome(): 
@@ -165,6 +167,7 @@ class CameraCalibr(QDialog):
         self.oBackBtn.clicked.connect(navToWelcome)
         
     def displayFolderPath(self, sLabel):
+        ##TODO fix
         """ Display folder paths under each upload button. Enable "Process Images" button if the user has chosen both folders. """
         sFolderPath = str(QFileDialog.getExistingDirectory(self, "Select Folder"))
         if (sLabel == "left"):
@@ -214,7 +217,7 @@ class CameraCalibr(QDialog):
         Save coefficients to yml files (default: leftCamParams.yml and rightCamParams.yml). Display the root mean square (RMS) re-projection error for each camera."""
         ##TODO loading screens 
 
-        nRMS, K, D, aRotation, aTranslation = self.singleCalibration(self.sLeftFolderPath, self.nSquareSize, self.nChessboardW, self.nChessboardH)
+        nRMS, K, D, aRotation, aTranslation = self.singleCalibration(self.sLeftFolderPath, self.nSquareSize, self.nChessboardW-1, self.nChessboardH-1)
         aLeftPath = QFileDialog.getSaveFileName(self, 'Save File', "leftCamParams.yml", "YML Files (*.yml)")
         #Write params to file
         saveCameraCoef(K, D, aLeftPath[0])
@@ -222,7 +225,7 @@ class CameraCalibr(QDialog):
         print("RMS on left camera calibration: ", nRMS)
 
 
-        nRMS, K, D, aRotation, aTranslation = self.singleCalibration(self.sRightFolderPath, self.nSquareSize, self.nChessboardW, self.nChessboardH)
+        nRMS, K, D, aRotation, aTranslation = self.singleCalibration(self.sRightFolderPath, self.nSquareSize, self.nChessboardW-1, self.nChessboardH-1)
         aRightPath = QFileDialog.getSaveFileName(self, 'Save File', "rightCamParams.yml", "YML Files (*.yml)")
         #Write params to file
         saveCameraCoef(K, D, aRightPath[0])
@@ -245,11 +248,12 @@ class CameraCalibr(QDialog):
         aImagePoints = []  # 2D points
 
         # for step in tqdm(range(0, len(os.listdir(sFolderPath))), desc = "Calibrating camera - Searching for chessboard pattern"):
-        for sImageName in os.listdir(sFolderPath):
+        aPaths = os.listdir(sFolderPath)
+        for sImageName in tqdm(aPaths):
             oImg = cv2.imread(os.path.join(sFolderPath,sImageName))
             oBGImg = cv2.cvtColor(oImg, cv2.COLOR_BGR2GRAY)
 
-            bFound, aCorners = cv2.findChessboardCorners(oBGImg, (nChessboardW, nChessboardH), None)
+            bFound, aCorners = cv2.findChessboardCorners(oBGImg, (nChessboardW, nChessboardH), flags=cv2.CALIB_USE_INTRINSIC_GUESS)
 
             # If found, add object points, image points (after refining them)
             if bFound:
@@ -261,7 +265,9 @@ class CameraCalibr(QDialog):
                 print(f"Chessboard found in {sImageName}!")
                 # Draw chessboard corners
                 oImg = cv2.drawChessboardCorners(oImg, (nChessboardW, nChessboardH), aCornersAcc, bFound)
-                # cv2.imshow(oImg)
+                cv2.imwrite("draw/" + sImageName, oImg)
+                # cv2.imshow(sImageName, oImg)
+                # cv2.waitKey()
             else:
                 print(f"Chessboard couldn't be detected in  {sImageName}!")
 
@@ -334,6 +340,7 @@ class StereoCalibr(QDialog):
                 self.oProcessBtn.setEnabled(False)
 
     def displayFolderPath(self, sLabel): 
+        ##TODO fix
         """ Display folder paths/file paths under each upload button. Enable "Process Images" button if the user has chosen both folders. """
        
         if sLabel == "left":
@@ -374,7 +381,7 @@ class StereoCalibr(QDialog):
 
         if (not self.oCustomCalibrFilesCb.isChecked()):
             if (path.exists("leftCamParams.yml") and path.exists("rightCamParams.yml")):
-                self.stereoCalibration("leftCamParams.yml", "rightCamParams.yml", self.sLeftFolderPath, self.sRightFolderPath, self.nSquareSize, self.nChessboardW, self.nChessboardH)
+                self.stereoCalibration("leftCamParams.yml", "rightCamParams.yml", self.sLeftFolderPath, self.sRightFolderPath, self.nSquareSize, self.nChessboardW-1, self.nChessboardH-1)
             else: 
                 oMessageBox = QMessageBox()
                 oMessageBox.setWindowTitle("Error")
@@ -382,8 +389,9 @@ class StereoCalibr(QDialog):
                 oMessageBox.setIcon(QMessageBox.Critical)
                 oMessageBox.buttonClicked.connect(navToWelcome)
                 oMessageBox.exec_()
+                return
         else:
-            self.stereoCalibration(self.sLeftFilePath, self.sRightFilePath, self.sLeftFolderPath, self.sRightFolderPath, self.nSquareSize, self.nChessboardW, self.nChessboardH)
+            self.stereoCalibration(self.sLeftFilePath, self.sRightFilePath, self.sLeftFolderPath, self.sRightFolderPath, self.nSquareSize, self.nChessboardW-1, self.nChessboardH-1)
 
     def stereoCalibration(self, sLeftFile, sRightFile, sLeftFolderPath, sRightFolderPath, nSquareSize=0.025, nChessboardW=9, nChessboardH=6): ##TODO error handling
         """ Stereo camera calibration using chessboard pattern. """
@@ -430,26 +438,37 @@ class StereoCalibr(QDialog):
             oBWLeftImg = cv2.cvtColor(oLeftImg, cv2.COLOR_BGR2GRAY)
 
             bFoundL, aCornersL = cv2.findChessboardCorners(oBWLeftImg, (nChessboardW, nChessboardH),
-                                                            cv2.CALIB_CB_ADAPTIVE_THRESH | cv2.CALIB_CB_FILTER_QUADS)
+                                                           flags=cv2.CALIB_USE_INTRINSIC_GUESS)
 
             # Right 
             oRightImg = cv2.imread(os.path.join(sRightFolderPath, sRightImg))
             oBWRightImg = cv2.cvtColor(oRightImg, cv2.COLOR_BGR2GRAY)
 
+            ##TODO check shape
+
             bFoundR, aCornersR = cv2.findChessboardCorners(oBWRightImg, (nChessboardW, nChessboardH),
-                                                                cv2.CALIB_CB_ADAPTIVE_THRESH | cv2.CALIB_CB_FILTER_QUADS)
+                                                                flags=cv2.CALIB_USE_INTRINSIC_GUESS)
 
             if bFoundL and bFoundR: # Chessboard found in both images
                 # 3D points
                 aSpacePoints.append(aObjectPoints)
                 
                 # Right 2D points
-                aCornersRAcc = cv2.cornerSubPix(oBWRightImg, aCornersR, (5, 5), (-1, -1), terminationCriteria)
+                aCornersRAcc = cv2.cornerSubPix(oBWRightImg, aCornersR, (11, 11), (-1, -1), terminationCriteria)
                 aRightPoints.append(aCornersRAcc)
 
+                oImg = cv2.drawChessboardCorners(oRightImg, (nChessboardW, nChessboardH), aCornersRAcc, bFoundR)
+                # cv2.imshow(sRightImg, oImg)
+                cv2.imwrite("draw stereo right/" + sRightImg, oImg)
+
                 # Left 2D points
-                aCornersLAcc = cv2.cornerSubPix(oBWLeftImg, aCornersL, (5, 5), (-1, -1), terminationCriteria)
+                aCornersLAcc = cv2.cornerSubPix(oBWLeftImg, aCornersL, (11, 11), (-1, -1), terminationCriteria)
                 aLeftPoints.append(aCornersLAcc)
+
+                oImg = cv2.drawChessboardCorners(oLeftImg, (nChessboardW, nChessboardH), aCornersLAcc, bFoundL)
+                # cv2.imshow(sLeftImg, oImg)
+                # cv2.waitKey()
+                cv2.imwrite("draw stereo left/" + sLeftImg, oImg)
                 print("Chessboard found in image pair: ", sLeftImg, " and ", sRightImg)
 
             else:
@@ -459,9 +478,35 @@ class StereoCalibr(QDialog):
         K1, D1 = loadCameraCoef(sLeftFile)
         K2, D2 = loadCameraCoef(sRightFile)
 
-        nRMS, K1, D1, K2, D2, R, T, E, F = cv2.stereoCalibrate(aSpacePoints, aLeftPoints, aRightPoints, K1, D1, K2, D2, aImageSize)
+        nRMS, K1, D1, K2, D2, R, T, E, F = cv2.stereoCalibrate(aSpacePoints, aLeftPoints, aRightPoints, K1, D1, K2, D2, aImageSize, flags=cv2.CALIB_FIX_INTRINSIC | cv2.CALIB_SAME_FOCAL_LENGTH)
         print("Stereo calibration RMS: ", nRMS)
-        R1, R2, P1, P2, Q, roiLeft, roiRigth = cv2.stereoRectify(K1, D1, K2, D2, aImageSize, R, T, flags=cv2.CALIB_ZERO_DISPARITY, alpha=0.9)
+        R1, R2, P1, P2, Q, roiLeft, roiRigth = cv2.stereoRectify(K1, D1, K2, D2, aImageSize, R, T, flags=cv2.CALIB_ZERO_DISPARITY, alpha=0.0)
+
+        ##Show recfified images to make sure everything's ok
+        sLeftImg = aLeftImgs[0]
+        sRightImg = aRightImgs[0]
+
+        oLeftImg = cv2.imread(os.path.join(sLeftFolderPath, sLeftImg))
+        cv2.imshow("Left ", oLeftImg)
+        cv2.waitKey()
+
+        oRightImg = cv2.imread(os.path.join(sRightFolderPath, sRightImg))
+        cv2.imshow("Right", oRightImg)
+        cv2.waitKey()
+
+
+        aLeftMapX, aLeftMapY = cv2.initUndistortRectifyMap(K1, D1, R1, P1, aImageSize, cv2.CV_32FC1)
+        oLeftRectified = cv2.remap(oLeftImg, aLeftMapX, aLeftMapY, cv2.INTER_LINEAR)
+        cv2.imshow("Left rectified", oLeftRectified)
+        # cv2.imwrite("rectified/" + sLeftImg, oLeftRectified)
+        cv2.waitKey()
+                
+
+        aRightMapX, aRightMapY = cv2.initUndistortRectifyMap(K2, D2, R2, P2, aImageSize, cv2.CV_32FC1)
+        oRightRectified = cv2.remap(oRightImg, aRightMapX, aRightMapY, cv2.INTER_LINEAR)
+        cv2.imshow("Right rectified", oRightRectified)
+        # cv2.imwrite("rectified/" + sRightImg, oRightRectified)
+        cv2.waitKey()
 
         aPath = QFileDialog.getSaveFileName(self, 'Save File', "stereoCamParams.yml", "YML Files (*.yml)")
         saveStereoCoef(K1, D1, K2, D2, R, T, E, F, R1, R2, P1, P2, Q, aPath[0]) 
@@ -566,13 +611,14 @@ class SGBMParams(QDialog):
         self.oBackBtn.clicked.connect(self.navToStereoReconstr)
 
     def uploadImage(self, sLabel):
+        ##TODO fix
         """ Set images (left and right) to corresponding labels """
         if (sLabel == "left"):
-            aFilePath = QFileDialog.getOpenFileName(self, "Select image", "~", "Image Files (*.png, *.jpg)")
+            aFilePath = QFileDialog.getOpenFileName(self, "Select image", "", "Image Files (*.png *.jpg)")
             self.sLeftPath = aFilePath[0]
             self.sLeftImage.setStyleSheet(f"background-image : url('{self.sLeftPath}');")
         elif (sLabel == "right"):
-            aFilePath = QFileDialog.getOpenFileName(self, "Select image", "~", "Image Files (*.png, *.jpg)")
+            aFilePath = QFileDialog.getOpenFileName(self, "Select image", "", "Image Files (*.png *.jpg)")
             self.sRightPath = aFilePath[0]
             self.sRightImage.setStyleSheet(f"background-image : url('{self.sRightPath }');")
 
@@ -585,11 +631,11 @@ class SGBMParams(QDialog):
         self.oMinDisparity.setValue(-1)
         self.oNumDisparities.setValue(80)
         self.oBlockSize.setValue(3)
-        self.oSpecK1eWindowSize.setValue(50)
+        self.oSpeckleWindowSize.setValue(50)
         self.oUniqRatio.setValue(10)
         self.oDisp12MaxDiff.setValue(12)
         self.oPreFilterCap.setValue(63)
-        self.oSpecK1eRange.setValue(2)
+        self.oSpeckleRange.setValue(2)
 
         self.oLambda.setValue(80000)
         self.oSigma.setValue(1.5)
@@ -599,29 +645,30 @@ class SGBMParams(QDialog):
         nMinDisparity = self.oMinDisparity.value()
         nNumDisparities =  self.oNumDisparities.value()
         nBlockSize = self.oBlockSize.value()
-        nSpecK1eWindowSize = self.oSpecK1eWindowSize.value()
+        nSpeckleWindowSize = self.oSpeckleWindowSize.value()
         nUniquenessRatio = self.oUniqRatio.value()
         nDisp12MaxDiff = self.oDisp12MaxDiff.value()
         nPreFilterCap = self.oPreFilterCap.value()
-        nSpecK1eRange = self.oSpecK1eRange.value()
+        nSpeckleRange = self.oSpeckleRange.value()
 
+        ##TODO lambda sigma
         nLambda = self.oLambda.value()
         nSigma = self.oSigma.value()
 
-        aDisparity, Q = self.computeDepthMap(self.sFilePath, self.bOpenDepthMap, self.sLeftPath, self.sRightPath, nBlockSize, nMinDisparity, nNumDisparities, nDisp12MaxDiff, nUniquenessRatio, nSpecK1eWindowSize, nSpecK1eRange, nPreFilterCap, nLambda=nLambda, nSigma=nSigma)
-        
-        #? compute Q
+        aDisparity, Q = self.computeDepthMap(self.sFilePath, self.bOpenDepthMap, self.sLeftPath, self.sRightPath, nBlockSize, nMinDisparity, nNumDisparities, nDisp12MaxDiff, nUniquenessRatio, nSpeckleWindowSize, nSpeckleRange, nPreFilterCap, nLambda=nLambda, nSigma=nSigma)
         
         aColors = cv2.imread(self.sLeftPath, cv2.COLOR_RGB2BGR)
         aColors = cv2.cvtColor(aColors, cv2.COLOR_RGB2BGR)
  
         aMask = aDisparity > aDisparity.min()
-        aReprojectedPoints = cv2.reprojectImageTo3D(-aDisparity, -Q)  
+        # Q = np.load("Q2.npy");
+        aReprojectedPoints = cv2.reprojectImageTo3D(aDisparity, Q)  
 
         aFinalPoints = aReprojectedPoints[aMask]
         aFinalColors = aColors[aMask]
 
-        # writePLY("reconstructed.ply", aFinalPoints, aFinalColors)
+        writePLY("reconstructed.ply", aFinalPoints, aFinalColors)
+
 
     def navToStereoReconstr(self):
         """ Navigate to 3D Stereo Reconstruction """
@@ -629,7 +676,7 @@ class SGBMParams(QDialog):
         widget.addWidget(oStereoReconstr)
         widget.setCurrentIndex(widget.currentIndex()+1)
 
-    def computeDepthMap(self, sStereoParams, bShowDepthMap, sLeftImg, sRightImg, nWindowSize=3,nMinDisparity=-1, nNumDisparities=80, nDisp12MaxDiff=12, nUniquenessRatio=10, nSpecK1eWindowSize=50, nSpecK1eRange=2, nPreFilterCap=63, sMode=cv2.STEREO_SGBM_MODE_SGBM_3WAY, nLambda=80000, nSigma=1.5): ##TODO
+    def computeDepthMap(self, sStereoParams, bShowDepthMap, sLeftImg, sRightImg, nWindowSize=3,nMinDisparity=-1, nNumDisparities=80, nDisp12MaxDiff=12, nUniquenessRatio=10, nSpeckleWindowSize=50, nSpeckleRange=2, nPreFilterCap=63, sMode=cv2.STEREO_SGBM_MODE_SGBM_3WAY, nLambda=80000, nSigma=1.5): ##TODO
         """ Compute depth map from image pair and stereo calibration coefficients. """
         K1, D1, K2, D2, R, T, E, F, R1, R2, P1, P2, Q = loadStereoCoef(sStereoParams)  # Get cams params
 
@@ -646,20 +693,29 @@ class SGBMParams(QDialog):
             oMessageBox.setIcon(QMessageBox.Critical)
             oMessageBox.buttonClicked.connect(navToWelcome)
             oMessageBox.exec_()
+            return
 
         nHeight, nWidth, oChannel = oLeftImg.shape
 
         # Undistortion and rectification
         ##TODO
-        # aLeftMapX, aLeftMapY = cv2.initUndistortRectifyMap(K1, D1, R1, P1, (nWidth, nHeight), cv2.CV_32FC1)
-        # oLeftRectified = cv2.remap(oLeftImg, aLeftMapX, aLeftMapY, cv2.INTER_LINEAR, cv2.BORDER_CONSTANT)
+        aLeftMapX, aLeftMapY = cv2.initUndistortRectifyMap(K1, D1, R1, P1, (nHeight, nWidth), cv2.CV_32FC1)
+        oLeftRectified = cv2.remap(oLeftImg, aLeftMapX, aLeftMapY, cv2.INTER_LINEAR, cv2.BORDER_CONSTANT)
 
-        # aRightMapX, aRightMapY = cv2.initUndistortRectifyMap(K2, D2, R2, P2, (nWidth, nHeight), cv2.CV_32FC1)
-        # oRightRectified = cv2.remap(oRightImg, aRightMapX, aRightMapY, cv2.INTER_LINEAR, cv2.BORDER_CONSTANT)
+        aRightMapX, aRightMapY = cv2.initUndistortRectifyMap(K2, D2, R2, P2, (nHeight, nWidth), cv2.CV_32FC1)
+        oRightRectified = cv2.remap(oRightImg, aRightMapX, aRightMapY, cv2.INTER_LINEAR, cv2.BORDER_CONSTANT)
+
+        # oLeftRectified = oLeftImg
+        # oRightRectified = oRightImg
+        cv2.imshow("Left rectified", oLeftRectified)
+        # cv2.imwrite("rectified/" + sLeftImg, oLeftRectified)
+        cv2.waitKey()
+                
+        cv2.imshow("Right rectified", oRightRectified)
+        # cv2.imwrite("rectified/" + sRightImg, oRightRectified)
+        cv2.waitKey()
 
         # Convert images to grayscale
-        oLeftRectified = oLeftImg
-        oRightRectified = oRightImg
         oBWLeft = cv2.cvtColor(oLeftRectified, cv2.COLOR_BGR2GRAY)
         oBWRight = cv2.cvtColor(oRightRectified, cv2.COLOR_BGR2GRAY)
 
@@ -669,39 +725,39 @@ class SGBMParams(QDialog):
             minDisparity=nMinDisparity,
             numDisparities=nNumDisparities,  # max_disp has to be dividable by 16 f. E. HH 192, 256
             blockSize=nWindowSize,
-            P1=8 * 3 * nWindowSize,
-            P2=32 * 3 * nWindowSize,
+            P1=8 * 3 * nWindowSize**2,
+            P2=32 * 3 * nWindowSize**2,
             disp12MaxDiff=nDisp12MaxDiff,
             uniquenessRatio=nUniquenessRatio,
-            specK1eWindowSize=nSpecK1eWindowSize,
-            specK1eRange=nSpecK1eRange,
+            speckleWindowSize=nSpeckleWindowSize,
+            speckleRange=nSpeckleRange,
             preFilterCap=nPreFilterCap,
             mode=sMode
         )
-        oRightMatcher = cv2.ximgproc.createRightMatcher(oLeftMatcher)
+        
+        disparity_map = oLeftMatcher.compute(oBWLeft, oBWRight)
+        # oRightMatcher = cv2.ximgproc.createRightMatcher(oLeftMatcher)
 
-        # Filter Parameters 
-        oWLSFilter = cv2.ximgproc.createDisparityWLSFilter(matcher_left=oLeftMatcher)
-        oWLSFilter.setLambda(nLambda)
-        oWLSFilter.setSigmaColor(nSigma)
+        # # Filter Parameters 
+        # oWLSFilter = cv2.ximgproc.createDisparityWLSFilter(matcher_left=oLeftMatcher)
+        # oWLSFilter.setLambda(nLambda)
+        # oWLSFilter.setSigmaColor(nSigma)
 
-        dispL = oLeftMatcher.compute(oBWLeft, oBWRight)  # .astype(np.float32)/16
-        dispR = oRightMatcher.compute(oBWRight, oBWLeft)  # .astype(np.float32)/16
-        # dispL = np.int16(dispL)
-        # cv2.imshow('disparity L', dispL)
-        # dispR = np.int16(dispR)
-        # cv2.imshow('disparity R', dispR)
+        # dispL = oLeftMatcher.compute(oBWLeft, oBWRight)  # .astype(np.float32)/16
+        # dispR = oRightMatcher.compute(oBWRight, oBWLeft)  # .astype(np.float32)/16
 
-        #? why important to put left image there
-        oFilteredImg = oWLSFilter.filter(dispL, oBWLeft, None, dispR) 
 
-        oFilteredImg = cv2.normalize(src=oFilteredImg, dst=oFilteredImg, beta=0, alpha=255, norm_type=cv2.NORM_MINMAX);
+        # #? why important to put left image there
+        # oFilteredImg = oWLSFilter.filter(dispL, oBWLeft, None, dispR) 
+
+        oFilteredImg = cv2.normalize(src=disparity_map, dst=disparity_map, beta=0, alpha=255, norm_type=cv2.NORM_MINMAX);
         oFilteredImg = np.uint8(oFilteredImg)
 
         if (bShowDepthMap):
-            cv2.imshow('Filtered Disparity/Depth Map', oFilteredImg)
+            cv2.imshow('Disparity/Depth Map', oFilteredImg)
+            cv2.waitKey()
 
-        return [oFilteredImg, Q]
+        return [disparity_map, Q]
 
 ############################################################################
 class SADParams(QDialog):
@@ -723,13 +779,14 @@ class SADParams(QDialog):
         self.oBackBtn.clicked.connect(self.navToStereoReconstr)
 
     def uploadImage(self, sLabel):
+        ##TODO fix
         """ Set images (left and right) to corresponding labels """
         if (sLabel == "left"):
-            aFilePath = QFileDialog.getOpenFileName(self, "Select image", "~", "Image Files (*.png, *.jpg)")
+            aFilePath = QFileDialog.getOpenFileName(self, "Select image", "~", "Image Files (*.png *.jpg)")
             self.sLeftPath = aFilePath[0]
             self.sLeftImage.setStyleSheet(f"background-image : url('{self.sLeftPath}');")
         elif (sLabel == "right"):
-            aFilePath = QFileDialog.getOpenFileName(self, "Select image", "~", "Image Files (*.png, *.jpg)")
+            aFilePath = QFileDialog.getOpenFileName(self, "Select image", "~", "Image Files (*.png *.jpg)")
             self.sRightPath = aFilePath[0]
             self.sRightImage.setStyleSheet(f"background-image : url('{self.sRightPath }');")
 
@@ -766,7 +823,7 @@ class SADParams(QDialog):
 
         # Convert images to grayscale
         oLeftRectified = oLeftImg
-        oRightRectified = oRightImg
+        oRightRectified = oRightImg 
 
         # oBWLeft = cv2.cvtColor(oLeftRectified, cv2.COLOR_BGR2GRAY)
         # oBWRight = cv2.cvtColor(oRightRectified, cv2.COLOR_BGR2GRAY)
@@ -782,14 +839,15 @@ class SADParams(QDialog):
         aColors = cv2.imread(self.sLeftPath, cv2.COLOR_RGB2BGR)
         aColors = cv2.cvtColor(aColors, cv2.COLOR_RGB2BGR)
  
-        # aMask = aDisparity > aDisparity.min()
-        # aReprojectedPoints = cv2.reprojectImageTo3D(-aDisparity, -Q) 
-        # print(aReprojectedPoints) 
+        aMask = aDisparity > aDisparity.min()
+        # Q = np.load("Q2.npy");
+        aReprojectedPoints = cv2.reprojectImageTo3D(aDisparity, Q) 
+        print(aReprojectedPoints) 
 
-        # aFinalPoints = aReprojectedPoints[aMask]
-        # aFinalColors = aColors[aMask]
+        aFinalPoints = aReprojectedPoints[aMask]
+        aFinalColors = aColors[aMask]
 
-        # writePLY("reconstructed.ply", aFinalPoints, aFinalColors)
+        writePLY("reconstructed.ply", aFinalPoints, aFinalColors)
 
     def computeSumAbsDiff(self,aLeftBlock, aRightBlock):
         """ Sum of absolute difference between 2 pixel blocks """
@@ -842,6 +900,7 @@ class SADParams(QDialog):
             oMessageBox.setIcon(QMessageBox.Critical)
             oMessageBox.buttonClicked.connect(navToWelcome)
             oMessageBox.exec_()
+            return
 
 
         nHeight, nWidth, nChannels = aLeftImg.shape
@@ -855,12 +914,12 @@ class SADParams(QDialog):
                 aDisparity[nRow, nCol] = abs(pMinSAD[1] - nCol)
         if (self.bOpenDepthMap):
             plt.imshow(aDisparity, cmap='hot', interpolation='nearest')
-            # plt.savefig('depth_image.png')
+            # plt.savefig('disparity.png')
             plt.show()
             # img = Image.fromarray(aDisparity, 'L')
             # img.show() 
         
-        return aDisparity
+        return np.uint8(aDisparity)
 
 ############################################################################
 if __name__ == '__main__':
