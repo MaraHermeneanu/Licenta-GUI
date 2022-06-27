@@ -160,154 +160,6 @@ border: 2px solid rgb(77, 59, 45);
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="4">
-      <widget class="QSpinBox" name="oLambda">
-       <property name="font">
-        <font>
-         <family>Century Gothic</family>
-         <pointsize>15</pointsize>
-        </font>
-       </property>
-       <property name="frame">
-        <bool>false</bool>
-       </property>
-       <property name="keyboardTracking">
-        <bool>true</bool>
-       </property>
-       <property name="minimum">
-        <number>-999999999</number>
-       </property>
-       <property name="maximum">
-        <number>999999999</number>
-       </property>
-       <property name="value">
-        <number>80000</number>
-       </property>
-       <property name="displayIntegerBase">
-        <number>10</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QSpinBox" name="oBlockSize">
-       <property name="font">
-        <font>
-         <family>Century Gothic</family>
-         <pointsize>16</pointsize>
-        </font>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="frame">
-        <bool>false</bool>
-       </property>
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>3</number>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QSpinBox" name="oDisp12MaxDiff">
-       <property name="font">
-        <font>
-         <family>Century Gothic</family>
-         <pointsize>16</pointsize>
-        </font>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="frame">
-        <bool>false</bool>
-       </property>
-       <property name="minimum">
-        <number>-999</number>
-       </property>
-       <property name="maximum">
-        <number>999</number>
-       </property>
-       <property name="value">
-        <number>12</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="label_4">
-       <property name="font">
-        <font>
-         <family>Century Gothic</family>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="toolTip">
-        <string>Maximum allowed difference (in integer pixel units) in the left-right disparity check. Set it to a non-positive value to disable the check.</string>
-       </property>
-       <property name="text">
-        <string>disp12MaxDiff</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4">
-      <widget class="QLabel" name="label_12">
-       <property name="font">
-        <font>
-         <family>Century Gothic</family>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>lambda</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QLabel" name="label_8">
-       <property name="font">
-        <font>
-         <family>Century Gothic</family>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="toolTip">
-        <string>Truncation value for the prefiltered image pixels. The algorithm first computes x-derivative at each pixel and clips its value by [-preFilterCap, preFilterCap] interval</string>
-       </property>
-       <property name="text">
-        <string>preFilterCap</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_9">
-       <property name="font">
-        <font>
-         <family>Century Gothic</family>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="toolTip">
-        <string>Minimum possible disparity value. Normally, it is zero but sometimes rectification algorithms can shift images, so this parameter n/eeds to be adjusted accordingly.</string>
-       </property>
-       <property name="text">
-        <string>minDisparity</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1">
       <widget class="QLabel" name="label_10">
        <property name="font">
@@ -346,50 +198,6 @@ border: 2px solid rgb(77, 59, 45);
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QSpinBox" name="oUniqRatio">
-       <property name="font">
-        <font>
-         <family>Century Gothic</family>
-         <pointsize>16</pointsize>
-        </font>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="frame">
-        <bool>false</bool>
-       </property>
-       <property name="minimum">
-        <number>-999</number>
-       </property>
-       <property name="maximum">
-        <number>999</number>
-       </property>
-       <property name="value">
-        <number>10</number>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="QLabel" name="label_5">
-       <property name="font">
-        <font>
-         <family>Century Gothic</family>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="toolTip">
-        <string>Maximum size of smooth disparity regions to consider their noise speckles and invalidate. Set it to 0 to disable speckle filtering. Otherwise, set it somewhere in the 50-200 range.</string>
-       </property>
-       <property name="text">
-        <string>speckleWindowSize</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_3">
        <property name="font">
@@ -406,25 +214,6 @@ border: 2px solid rgb(77, 59, 45);
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="oNumDisparities">
-       <property name="font">
-        <font>
-         <family>Century Gothic</family>
-         <pointsize>16</pointsize>
-        </font>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="frame">
-        <bool>false</bool>
-       </property>
-       <property name="value">
-        <number>80</number>
        </property>
       </widget>
      </item>
@@ -447,19 +236,28 @@ border: 2px solid rgb(77, 59, 45);
        </property>
       </widget>
      </item>
-     <item row="2" column="4">
-      <widget class="QLabel" name="label_11">
+     <item row="4" column="1">
+      <widget class="QSpinBox" name="oDisp12MaxDiff">
        <property name="font">
         <font>
          <family>Century Gothic</family>
-         <pointsize>12</pointsize>
+         <pointsize>16</pointsize>
         </font>
        </property>
-       <property name="text">
-        <string>sigma</string>
+       <property name="autoFillBackground">
+        <bool>false</bool>
        </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="minimum">
+        <number>-999</number>
+       </property>
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="value">
+        <number>12</number>
        </property>
       </widget>
      </item>
@@ -485,6 +283,129 @@ border: 2px solid rgb(77, 59, 45);
        </property>
        <property name="value">
         <number>63</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QSpinBox" name="oBlockSize">
+       <property name="font">
+        <font>
+         <family>Century Gothic</family>
+         <pointsize>16</pointsize>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="value">
+        <number>3</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_9">
+       <property name="font">
+        <font>
+         <family>Century Gothic</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>Minimum possible disparity value. Normally, it is zero but sometimes rectification algorithms can shift images, so this parameter n/eeds to be adjusted accordingly.</string>
+       </property>
+       <property name="text">
+        <string>minDisparity</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="label_4">
+       <property name="font">
+        <font>
+         <family>Century Gothic</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>Maximum allowed difference (in integer pixel units) in the left-right disparity check. Set it to a non-positive value to disable the check.</string>
+       </property>
+       <property name="text">
+        <string>disp12MaxDiff</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="oNumDisparities">
+       <property name="font">
+        <font>
+         <family>Century Gothic</family>
+         <pointsize>16</pointsize>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="value">
+        <number>80</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QSpinBox" name="oSpeckleWindowSize">
+       <property name="font">
+        <font>
+         <family>Century Gothic</family>
+         <pointsize>16</pointsize>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="minimum">
+        <number>-999</number>
+       </property>
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="label_8">
+       <property name="font">
+        <font>
+         <family>Century Gothic</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>Truncation value for the prefiltered image pixels. The algorithm first computes x-derivative at each pixel and clips its value by [-preFilterCap, preFilterCap] interval</string>
+       </property>
+       <property name="text">
+        <string>preFilterCap</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -516,31 +437,28 @@ border: 2px solid rgb(77, 59, 45);
        </property>
       </widget>
      </item>
-     <item row="4" column="4">
-      <widget class="QDoubleSpinBox" name="oSigma">
+     <item row="4" column="0">
+      <widget class="QSpinBox" name="oUniqRatio">
        <property name="font">
         <font>
          <family>Century Gothic</family>
          <pointsize>16</pointsize>
         </font>
        </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
        <property name="frame">
         <bool>false</bool>
        </property>
-       <property name="decimals">
-        <number>1</number>
-       </property>
        <property name="minimum">
-        <double>-999.000000000000000</double>
+        <number>-999</number>
        </property>
        <property name="maximum">
-        <double>999.000000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
+        <number>999</number>
        </property>
        <property name="value">
-        <double>1.500000000000000</double>
+        <number>10</number>
        </property>
       </widget>
      </item>
@@ -569,28 +487,22 @@ border: 2px solid rgb(77, 59, 45);
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
-      <widget class="QSpinBox" name="oSpeckleWindowSize">
+     <item row="0" column="3">
+      <widget class="QLabel" name="label_5">
        <property name="font">
         <font>
          <family>Century Gothic</family>
-         <pointsize>16</pointsize>
+         <pointsize>12</pointsize>
         </font>
        </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
+       <property name="toolTip">
+        <string>Maximum size of smooth disparity regions to consider their noise speckles and invalidate. Set it to 0 to disable speckle filtering. Otherwise, set it somewhere in the 50-200 range.</string>
        </property>
-       <property name="frame">
-        <bool>false</bool>
+       <property name="text">
+        <string>speckleWindowSize</string>
        </property>
-       <property name="minimum">
-        <number>-999</number>
-       </property>
-       <property name="maximum">
-        <number>999</number>
-       </property>
-       <property name="value">
-        <number>50</number>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
